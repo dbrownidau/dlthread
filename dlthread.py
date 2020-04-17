@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
+import sys
 import requests
 import os
+from pathlib import Path
 from urllib.request import urlretrieve
 from urllib.parse import urlparse, urljoin
 from tqdm import tqdm
@@ -23,18 +25,22 @@ def download(img, pathname):
     """
     Downloads a file given an URL and puts it in the folder `pathname`
     """
+    Path(pathname).mkdir(parents=True, exist_ok=True)
     # if path doesn't exist, make that path dir
     if not os.path.isdir(pathname):
         os.makedirs(pathname)
     # get the file name
     filename = img['name']
-    urlretrieve(img['url'], img['name'])
+    urlretrieve(img['url'], pathname + '/' + img['name'])
 
-def main(url, path):
+def main(url):
     # get all images
     imgs = get_all_images(url)
     for img in imgs:
         # for each image, download it
-        download(imgs[img], path)
+        download(imgs[img], 'downloads')
 
-main("https://16chan.xyz/pol/res/25345.html", "web-scraping")
+if len(sys.argv) < 2:
+    print('Requires target URL.')
+    exit(0)
+main(sys.argv[1])
