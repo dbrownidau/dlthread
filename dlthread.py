@@ -12,6 +12,7 @@ def get_all_images(url):
     """
     Returns all images as part of an dict.
     """
+    print('Extracting assets from html')
     soup = bs(requests.get(url).content, "html.parser")
     imgs = {}
     for a in soup.find_all("a", class_='originalNameLink'):
@@ -25,6 +26,7 @@ def download(img, pathname):
     """
     Downloads a file given an URL and puts it in the folder `pathname`
     """
+    print('Downloading:', img['name'])
     Path(pathname).mkdir(parents=True, exist_ok=True)
     # if path doesn't exist, make that path dir
     if not os.path.isdir(pathname):
@@ -34,7 +36,7 @@ def download(img, pathname):
     urlretrieve(img['url'], pathname + '/' + img['name'])
 
 def main(url):
-    # get all images
+    print('Hello World')
     imgs = get_all_images(url)
     for img in imgs:
         # for each image, download it
