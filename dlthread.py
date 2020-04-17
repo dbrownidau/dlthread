@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 import requests
 import os
+from urllib.request import urlretrieve
+from urllib.parse import urlparse, urljoin
 from tqdm import tqdm
 from bs4 import BeautifulSoup as bs
-from urllib.parse import urljoin, urlparse
 
 def get_all_images(url):
     """
@@ -27,8 +28,7 @@ def download(img, pathname):
         os.makedirs(pathname)
     # get the file name
     filename = img['name']
-    with open(filename, "wb") as f:
-        f.write(requests.get(img['url']).content)
+    urlretrieve(img['url'], img['name'])
 
 def main(url, path):
     # get all images
