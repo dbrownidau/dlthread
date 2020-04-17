@@ -2,6 +2,7 @@
 import sys
 import requests
 import os
+import time
 from pathlib import Path
 from urllib.request import urlretrieve
 from urllib.parse import urlparse, urljoin
@@ -28,18 +29,19 @@ def download(img, pathname):
     """
     print('Downloading:', img['name'])
     Path(pathname).mkdir(parents=True, exist_ok=True)
-    # if path doesn't exist, make that path dir
     if not os.path.isdir(pathname):
         os.makedirs(pathname)
-    # get the file name
-    filename = img['name']
+    if os.path.exists(pathname + '/' + img['name']):
+        alt = str(int(time.time())) + '--' + img['name']
+        print('Duplicate file, saving as:', alt)
+        urlretrieve(img['url'], pathname + '/' + alt)
+        return
     urlretrieve(img['url'], pathname + '/' + img['name'])
 
 def main(url):
     print('Hello World')
     imgs = get_all_images(url)
     for img in imgs:
-        # for each image, download it
         download(imgs[img], 'downloads')
 
 if len(sys.argv) < 2:
