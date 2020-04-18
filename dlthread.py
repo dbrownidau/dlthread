@@ -56,8 +56,8 @@ def gen_targetfile(img, pathname):
         os.makedirs(pathname)
     if os.path.exists(pathname + '/' + img['name']):
         alt = str(int(time.time())) + '--' + img['name']
-        print('Existing file, using new name:', alt)
-        return pathname + '/' + alt
+        print('Existing filename:', img['name'])
+        return pathname + '/' + alt #Often doesn't progress enough for this to be used.
     print('Filename:', img['name'])
     return pathname + '/' + img['name']
 
@@ -68,8 +68,6 @@ def download(url, name):
     print(' > Downloading:', name)
     u = requests.get(url)
     return u
-    #sha1 = gimmeh_sha1(u.content)
-
 
 def save_file(u, pathname, filename):
     """
@@ -105,14 +103,18 @@ def check_duplicate(state, checksum):
             return False
     return False
 
-def url_known(state, url):
+def url_known(state, img):
     """
-    Returns true if the url is known in the index state.
+    Returns true if the url is known in the index state and has a sha1 attached.
     """
     for entity in state:
-        if url in state[entitiy]['url']:
-            print('url exists in index state')
-            return True
+        if img['url'] in state[entity]['url']: #img['url'] comes from main
+            try:
+                if 'sha1' in state[entity]:
+                    print(' > Known: ', state[entity]['sha1'])
+                    return True
+            except KeyError:
+                return False
     return False
 
 def catalog_consumer(url):
@@ -137,6 +139,8 @@ def main(url):
     state = index(state, imgs, url)
     for img in imgs:
         targetfile = gen_targetfile(imgs[img], 'downloads')
+        if url_known(state, imgs[img]):
+            continue
         u = download(imgs[img]['url'], imgs[img]['name'])
         if not check_duplicate(state, gimmeh_sha1(u.content)):
             save_file(u, targetfile, imgs[img]['name'])
