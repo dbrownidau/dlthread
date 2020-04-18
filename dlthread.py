@@ -4,10 +4,25 @@ import requests
 import os
 import time
 import hashlib
+import json
 from pathlib import Path
 from urllib.request import urlretrieve
 from urllib.parse import urlparse, urljoin
 from bs4 import BeautifulSoup as bs
+
+def load_state(statefile):
+    print('Loading state')
+    try:
+        with open(statefile, 'r') as state:
+            return state
+    except FileNotFoundError:
+        print('No state file found.')
+        return {}
+
+def save_state(statefile, state):
+    print('Saving state')
+    with open (statefile, 'w') as state:
+        json.dump(state, statefile)
 
 def gimmeh_sha1(buffer):
     """
@@ -58,9 +73,11 @@ def download(url, pathname):
 
 def main(url):
     print('Hello World')
+    state = load_state('dlthread.json')
     imgs = get_all_images(url)
     for img in imgs:
         fetch(imgs[img], 'downloads')
+    save_state(state)
 
 if len(sys.argv) < 2:
     print('Requires target URL.')
