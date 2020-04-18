@@ -173,7 +173,6 @@ def main(url):
 
 if len(sys.argv) < 2:
     print('Requires target URL.')
-print(len(sys.argv))
 if len(sys.argv) > 2:
     print('Import mode: ', sys.argv[2])
     state = load_state('dlthread.json')
