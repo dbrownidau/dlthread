@@ -7,7 +7,6 @@ import hashlib
 from pathlib import Path
 from urllib.request import urlretrieve
 from urllib.parse import urlparse, urljoin
-from tqdm import tqdm
 from bs4 import BeautifulSoup as bs
 
 def gimmeh_sha1(buffer):
