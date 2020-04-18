@@ -105,6 +105,16 @@ def check_duplicate(state, checksum):
             return False
     return False
 
+def url_known(state, url):
+    """
+    Returns true if the url is known in the index state.
+    """
+    for entity in state:
+        if url in state[entitiy]['url']:
+            print('url exists in index state')
+            return True
+    return False
+
 def catalog_consumer(url):
     print('Catalog consumer attempting to find threads...')
     soup = bs(requests.get(url).content, "html.parser")
@@ -116,12 +126,13 @@ def catalog_consumer(url):
 
 def main(url):
     print('Hello World')
-    state = load_state('dlthread.json')
     if 'catalog' in url:
         for instance in catalog_consumer(url):
             print('Downloading thread:', instance)
             main(instance)
         return
+    state = load_state('dlthread.json')
+    save_state('dlthread_bkp.json', state)
     imgs = get_all_images(url)
     state = index(state, imgs, url)
     for img in imgs:
