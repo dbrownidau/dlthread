@@ -30,7 +30,7 @@ def gimmeh_sha1(buffer):
     Returns a SHA1 for a buffer
     """
     sha1 = hashlib.sha1()
-    sha1.update(buffer) #.update(str('lol').encode('utf-8'))
+    sha1.update(buffer)
     return sha1.hexdigest()
 
 def get_all_images(url):
@@ -47,28 +47,32 @@ def get_all_images(url):
         imgs[a['download']] = temp
     return imgs
 
-def fetch(img, pathname):
+def gen_targetfile(img, pathname):
     """
-    Does preflight checks before requesting file download.
+    Does preflight checks, generates a path.
     """
     Path(pathname).mkdir(parents=True, exist_ok=True)
     if not os.path.isdir(pathname):
         os.makedirs(pathname)
     if os.path.exists(pathname + '/' + img['name']):
-        alt = str(int(time.time())) + '--' + img['name']
-        print('Duplicate file, saving as:', alt)
-        download(img['url'], pathname + '/' + alt)
-        return
-    download(img['url'], pathname + '/' + img['name'])
+        print('Duplicate file...')
+        return pathname + '/' + str(int(time.time())) + '--' + img['name']
+    return pathname + '/' + img['name']
 
-def download(url, pathname):
+def download(url):
     """
     Downloads a file given an URL and puts it in the folder `pathname`
     """
-    print('Downloading:', pathname)
-    #urlretrieve(img['url'], pathname + '/' + img['name'])
+    print('Downloading:', url)
     u = requests.get(url)
-    sha1 = gimmeh_sha1(u.content)
+    return u
+    #sha1 = gimmeh_sha1(u.content)
+
+
+def save_file(u, pathname):
+    """
+    Writes file to disk
+    """
     with open(pathname, 'wb') as f:
         f.write(u.content)
 
@@ -87,7 +91,9 @@ def main(url):
     imgs = get_all_images(url)
     state = index(state, imgs, url)
     for img in imgs:
-        fetch(imgs[img], 'downloads')
+        targetfile = gen_targetfile(imgs[img], 'downloads')
+        u = download(imgs[img]['url'])
+        save_file(u, targetfile)
     save_state('dlthread.json', state)
 
 if len(sys.argv) < 2:
