@@ -72,12 +72,12 @@ def download(url, pathname):
     with open(pathname, 'wb') as f:
         f.write(u.content)
 
-def index(state, imgs):
+def index(state, imgs, url):
     """
     Indexes a file in the state
     """
     for img in imgs:
-        print(type(state))
+        imgs[img]['target'] = url
         state[imgs[img]['url']] = imgs[img]
     return state
 
@@ -85,7 +85,7 @@ def main(url):
     print('Hello World')
     state = load_state('dlthread.json')
     imgs = get_all_images(url)
-    state = index(state, imgs)
+    state = index(state, imgs, url)
     for img in imgs:
         fetch(imgs[img], 'downloads')
     save_state('dlthread.json', state)
