@@ -47,6 +47,26 @@ def get_all_images(url):
         imgs[urljoin(url, a['href'])] = temp
     return imgs
 
+def import_checksums(pathname):
+    """
+    Globs a directory and checksums all the files in the index state.
+    """
+    imgs = {}
+    for file in os.listdir(pathname):
+        sha1 = hashlib.sha1()
+        with open(os.path.join(pathname, file), 'rb') as f:
+            print('Reading file', os.path.join(pathname, file))
+            for chunk in iter(lambda: f.read(4096), b""):
+                sha1.update(chunk)
+        print(sha1.hexdigest())
+        temp = {}
+        temp['name'] = file
+        temp['url'] = 'Imported'
+        temp['sha1'] = sha1.hexdigest()
+        imgs[os.path.join(pathname, file)] = temp
+        print(temp)
+    return imgs
+
 def gen_targetfile(img, pathname):
     """
     Does preflight checks, generates a path.
@@ -82,6 +102,9 @@ def index(state, imgs, url):
     Indexes a file in the state
     """
     for img in imgs:
+        if 'Imported' in imgs[img]['url']:
+            print('Importing...', img)
+            state[img] = imgs[img]
         if not imgs[img]['url'] in state:
             imgs[img]['target'] = url
             state[imgs[img]['url']] = imgs[img]
@@ -147,7 +170,15 @@ def main(url):
         bookmark_checksum(state, imgs[img]['url'], gimmeh_sha1(u.content))
     save_state('dlthread.json', state)
 
+
 if len(sys.argv) < 2:
     print('Requires target URL.')
+print(len(sys.argv))
+if len(sys.argv) > 2:
+    print('Import mode: ', sys.argv[2])
+    state = load_state('dlthread.json')
+    imgs = import_checksums(sys.argv[2])
+    state = index(state, imgs, 'Imported')
+    save_state('dlthread.json', state)
     exit(0)
 main(sys.argv[1])
