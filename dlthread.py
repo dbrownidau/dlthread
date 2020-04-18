@@ -89,9 +89,17 @@ def index(state, imgs, url):
 def bookmark_checksum(state, url, checksum):
     state[url]['sha1'] = checksum
 
-def check_checksum(state, checksum):
+def check_duplicate(state, checksum):
+    """
+    Returns true if the sha1 is known
+    """
     for entity in state:
-        print(state[entity].keys())
+        try:
+            if checksum in state[entity]['sha1']:
+                return True
+        except KeyError:
+            return False
+    return False
 
 def main(url):
     print('Hello World')
@@ -101,9 +109,9 @@ def main(url):
     for img in imgs:
         targetfile = gen_targetfile(imgs[img], 'downloads')
         u = download(imgs[img]['url'])
-        check_checksum(state, gimmeh_sha1(u.content))
+        if not check_duplicate(state, gimmeh_sha1(u.content)):
+            save_file(u, targetfile)
         bookmark_checksum(state, imgs[img]['url'], gimmeh_sha1(u.content))
-        save_file(u, targetfile)
     save_state('dlthread.json', state)
 
 if len(sys.argv) < 2:
