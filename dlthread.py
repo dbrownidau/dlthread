@@ -47,7 +47,7 @@ def get_all_images(url):
         imgs[urljoin(url, a['href'])] = temp
     return imgs
 
-def import_checksums(pathname):
+def import_checksums(pathname, state):
     """
     Globs a directory and checksums all the files in the index state.
     """
@@ -59,6 +59,14 @@ def import_checksums(pathname):
             for chunk in iter(lambda: f.read(4096), b""):
                 sha1.update(chunk)
         print(sha1.hexdigest())
+        known = 0
+        for entity in state:
+            if sha1.hexdigest() in state[entity]['sha1']:
+                known = 1
+                break
+        if known is 1:
+            print('File', file, 'already seen, not importing.')
+            continue
         temp = {}
         temp['name'] = file
         temp['url'] = 'Imported'
@@ -176,7 +184,7 @@ if len(sys.argv) < 2:
 if len(sys.argv) > 2:
     print('Import mode: ', sys.argv[2])
     state = load_state('dlthread.json')
-    imgs = import_checksums(sys.argv[2])
+    imgs = import_checksums(sys.argv[2], state)
     state = index(state, imgs, 'Imported')
     save_state('dlthread.json', state)
     exit(0)
