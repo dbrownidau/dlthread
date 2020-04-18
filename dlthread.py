@@ -31,26 +31,36 @@ def get_all_images(url):
         imgs[a['download']] = temp
     return imgs
 
-def download(img, pathname):
+def fetch(img, pathname):
     """
-    Downloads a file given an URL and puts it in the folder `pathname`
+    Does preflight checks before requesting file download.
     """
-    print('Downloading:', img['name'])
     Path(pathname).mkdir(parents=True, exist_ok=True)
     if not os.path.isdir(pathname):
         os.makedirs(pathname)
     if os.path.exists(pathname + '/' + img['name']):
         alt = str(int(time.time())) + '--' + img['name']
         print('Duplicate file, saving as:', alt)
-        urlretrieve(img['url'], pathname + '/' + alt) # gimmeh_sha1() - todo
+        download(img['url'], pathname + '/' + alt)
         return
-    urlretrieve(img['url'], pathname + '/' + img['name'])
+    download(img['url'], pathname + '/' + img['name'])
+
+def download(url, pathname):
+    """
+    Downloads a file given an URL and puts it in the folder `pathname`
+    """
+    print('Downloading:', pathname)
+    #urlretrieve(img['url'], pathname + '/' + img['name'])
+    u = requests.get(url)
+    gimmeh_sha1(u.content)
+    with open(pathname, 'wb') as f:
+        f.write(u.content)
 
 def main(url):
     print('Hello World')
     imgs = get_all_images(url)
     for img in imgs:
-        download(imgs[img], 'downloads')
+        fetch(imgs[img], 'downloads')
 
 if len(sys.argv) < 2:
     print('Requires target URL.')
