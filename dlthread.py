@@ -81,9 +81,17 @@ def index(state, imgs, url):
     Indexes a file in the state
     """
     for img in imgs:
-        imgs[img]['target'] = url
-        state[imgs[img]['url']] = imgs[img]
+        if not imgs[img]['url'] in state:
+            imgs[img]['target'] = url
+            state[imgs[img]['url']] = imgs[img]
     return state
+
+def bookmark_checksum(state, url, checksum):
+    state[url]['sha1'] = checksum
+
+def check_checksum(state, checksum):
+    for entity in state:
+        print(state[entity].keys())
 
 def main(url):
     print('Hello World')
@@ -93,6 +101,8 @@ def main(url):
     for img in imgs:
         targetfile = gen_targetfile(imgs[img], 'downloads')
         u = download(imgs[img]['url'])
+        check_checksum(state, gimmeh_sha1(u.content))
+        bookmark_checksum(state, imgs[img]['url'], gimmeh_sha1(u.content))
         save_file(u, targetfile)
     save_state('dlthread.json', state)
 
