@@ -13,7 +13,7 @@ The metadata anchored against the sha1 is indexed in a state object. Currently t
 This index is read once at the beginning of a capture transaction, and is in memory for the life of the process.
 The state is written back to the disk at the end of a capture and thus must be treated atomically.
 
-If multiple instances are running concurrently, you risk data lose. https://github.com/dbrownidau/dlthread/issues/8
+If multiple instances are running concurrently, you risk data lose. See issue [#8](https://github.com/dbrownidau/dlthread/issues/8).
 
 This project does not create concurrent HTTP requests.
 
