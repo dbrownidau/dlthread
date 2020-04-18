@@ -55,24 +55,27 @@ def gen_targetfile(img, pathname):
     if not os.path.isdir(pathname):
         os.makedirs(pathname)
     if os.path.exists(pathname + '/' + img['name']):
-        print('Duplicate file...')
-        return pathname + '/' + str(int(time.time())) + '--' + img['name']
+        alt = str(int(time.time())) + '--' + img['name']
+        print('Existing file, using new name:', alt)
+        return pathname + '/' + alt
+    print('Filename:', img['name'])
     return pathname + '/' + img['name']
 
-def download(url):
+def download(url, name):
     """
     Downloads a file given an URL and puts it in the folder `pathname`
     """
-    print('Downloading:', url)
+    print(' > Downloading:', name)
     u = requests.get(url)
     return u
     #sha1 = gimmeh_sha1(u.content)
 
 
-def save_file(u, pathname):
+def save_file(u, pathname, filename):
     """
     Writes file to disk
     """
+    print(' > Writing', filename, 'to disk.')
     with open(pathname, 'wb') as f:
         f.write(u.content)
 
@@ -96,6 +99,7 @@ def check_duplicate(state, checksum):
     for entity in state:
         try:
             if checksum in state[entity]['sha1']:
+                print(' > Checksum already known, skipping...')
                 return True
         except KeyError:
             return False
@@ -108,9 +112,9 @@ def main(url):
     state = index(state, imgs, url)
     for img in imgs:
         targetfile = gen_targetfile(imgs[img], 'downloads')
-        u = download(imgs[img]['url'])
+        u = download(imgs[img]['url'], imgs[img]['name'])
         if not check_duplicate(state, gimmeh_sha1(u.content)):
-            save_file(u, targetfile)
+            save_file(u, targetfile, imgs[img]['name'])
         bookmark_checksum(state, imgs[img]['url'], gimmeh_sha1(u.content))
     save_state('dlthread.json', state)
 
