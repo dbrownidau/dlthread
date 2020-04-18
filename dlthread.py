@@ -14,8 +14,7 @@ def load_state(statefile):
     print('Loading state')
     try:
         with open(statefile, 'r') as state:
-            print(type(state))
-            return state
+            return json.load(state)
     except FileNotFoundError:
         print('No state file found.')
         temp = {}
