@@ -44,7 +44,7 @@ def get_all_images(url):
         temp = {}
         temp['name'] = a['download'] #the filename
         temp['url'] =  urljoin(url, a['href']) #The lonk
-        imgs[a['download']] = temp
+        imgs[urljoin(url, a['href'])] = temp
     return imgs
 
 def gen_targetfile(img, pathname):
