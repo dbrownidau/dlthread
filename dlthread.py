@@ -121,6 +121,7 @@ def main(url):
         for instance in catalog_consumer(url):
             print('Downloading thread:', instance)
             main(instance)
+        return
     imgs = get_all_images(url)
     state = index(state, imgs, url)
     for img in imgs:
