@@ -64,7 +64,7 @@ def import_checksums(pathname, state):
             if sha1.hexdigest() in state[entity]['sha1']:
                 known = 1
                 break
-        if known is 1:
+        if known == 1:
             print('File', file, 'already seen, not importing.')
             continue
         temp = {}
